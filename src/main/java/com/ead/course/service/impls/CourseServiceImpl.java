@@ -9,13 +9,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class CourseServiceImpl implements CourseService {
 
-    final CourseService courseService;
     final CourseRepository courseRepository;
     final ModuleRepository moduleRepository;
     final LessonRepository lessonRepository;
 
-    public CourseServiceImpl(CourseService courseService, CourseRepository courseRepository, ModuleRepository moduleRepository, LessonRepository lessonRepository) {
-        this.courseService = courseService;
+    public CourseServiceImpl(CourseRepository courseRepository, ModuleRepository moduleRepository, LessonRepository lessonRepository) {
         this.courseRepository = courseRepository;
         this.moduleRepository = moduleRepository;
         this.lessonRepository = lessonRepository;

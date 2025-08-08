@@ -1,15 +1,16 @@
 package com.ead.course.service.impls;
 
+import com.ead.course.repositories.ModuleRepository;
 import com.ead.course.service.ModuleService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ModuleServiceImpl implements ModuleService {
 
-    final ModuleService moduleService;
+    final ModuleRepository moduleRepository;
 
-    public ModuleServiceImpl(ModuleService moduleService) {
-        this.moduleService = moduleService;
+    public ModuleServiceImpl(ModuleRepository moduleRepository) {
+        this.moduleRepository = moduleRepository;
     }
 
 }
