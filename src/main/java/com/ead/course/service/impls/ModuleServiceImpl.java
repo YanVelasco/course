@@ -1,8 +1,10 @@
 package com.ead.course.service.impls;
 
+import com.ead.course.models.ModuleModel;
 import com.ead.course.repositories.ModuleRepository;
 import com.ead.course.service.ModuleService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ModuleServiceImpl implements ModuleService {
@@ -11,6 +13,12 @@ public class ModuleServiceImpl implements ModuleService {
 
     public ModuleServiceImpl(ModuleRepository moduleRepository) {
         this.moduleRepository = moduleRepository;
+    }
+
+    @Transactional
+    @Override
+    public void deleteModule(ModuleModel module) {
+        moduleRepository.delete(module);
     }
 
 }

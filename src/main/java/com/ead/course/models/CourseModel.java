@@ -65,7 +65,11 @@ public class CourseModel implements Serializable {
     private String imageUrl;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "course", fetch = FetchType.LAZY,
+            cascade = {CascadeType.REMOVE, CascadeType.MERGE},
+            orphanRemoval = true
+    )
     @Fetch(FetchMode.SUBSELECT)
     private Set<ModuleModel> modules;
 
