@@ -36,6 +36,7 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.delete(courseModel);
     }
 
+    @Transactional
     @Override
     public CourseModel save(CourseDto courseDto) {
         var courseModel = new CourseModel();
@@ -50,6 +51,7 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.existsByName(name);
     }
 
+    @Transactional
     @Override
     public CoursePageDto findAll(Pageable pageable, String name, CourseStatus courseStatus, String description, CourseLevel courseLevel, UUID userInstructor) {
 
@@ -91,6 +93,14 @@ public class CourseServiceImpl implements CourseService {
     public CourseModel findCourseById(UUID courseId) {
         return courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+    }
+
+    @Transactional
+    @Override
+    public CourseModel updateCourse(CourseModel courseModel, CourseDto courseDto) {
+        BeanUtils.copyProperties(courseDto, courseModel);
+        courseModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
+        return courseRepository.save(courseModel);
     }
 
 }

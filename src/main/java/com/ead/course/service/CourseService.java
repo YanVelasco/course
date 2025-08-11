@@ -23,4 +23,6 @@ public interface CourseService {
 
     CourseModel findCourseById(UUID courseId);
 
+    CourseModel updateCourse(CourseModel courseModel, CourseDto courseDto);
+
 }

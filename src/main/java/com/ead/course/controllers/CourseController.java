@@ -1,13 +1,10 @@
 package com.ead.course.controllers;
 
 import com.ead.course.dtos.CourseDto;
-import com.ead.course.dtos.CoursePageDto;
 import com.ead.course.enums.CourseLevel;
 import com.ead.course.enums.CourseStatus;
-import com.ead.course.models.CourseModel;
 import com.ead.course.service.CourseService;
 import jakarta.validation.Valid;
-import org.hibernate.usertype.UserType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,4 +52,26 @@ public class CourseController {
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(courseService.findCourseById(courseId));
     }
+
+    @PutMapping("/{courseId}")
+    public ResponseEntity<Object> updateCourse(
+            @PathVariable UUID courseId,
+            @RequestBody @Valid CourseDto courseDto
+    ) {
+        if (courseService.existsByName(courseDto.name())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Course with name " + courseDto.name() + " already exists.");
+        }
+        var courseModel = courseService.findCourseById(courseId);
+        return ResponseEntity.status(HttpStatus.OK).body(courseService.updateCourse(courseModel, courseDto));
+    }
+
+    @DeleteMapping("/{courseId}")
+    public ResponseEntity<Void> deleteCourse(
+            @PathVariable UUID courseId
+    ) {
+        courseService.delete(courseService.findCourseById(courseId));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 }
