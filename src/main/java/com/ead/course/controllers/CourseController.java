@@ -1,14 +1,19 @@
 package com.ead.course.controllers;
 
 import com.ead.course.dtos.CourseDto;
+import com.ead.course.dtos.CoursePageDto;
+import com.ead.course.enums.CourseLevel;
+import com.ead.course.enums.CourseStatus;
+import com.ead.course.models.CourseModel;
 import com.ead.course.service.CourseService;
 import jakarta.validation.Valid;
+import org.hibernate.usertype.UserType;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/courses")
@@ -31,4 +36,23 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(courseService.save(courseDto));
     }
 
+    @GetMapping
+    public ResponseEntity<Object> getAllCourses(
+            Pageable pageable,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) CourseStatus courseStatus,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) CourseLevel courseLevel,
+            @RequestParam(required = false) UUID userInstructor
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(courseService.findAll(
+                pageable, name, courseStatus, description, courseLevel, userInstructor));
+    }
+
+    @GetMapping("/{courseId}")
+    public ResponseEntity<Object> getCourseById(
+            @PathVariable UUID courseId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(courseService.findCourseById(courseId));
+    }
 }
