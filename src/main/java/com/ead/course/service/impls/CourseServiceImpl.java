@@ -89,6 +89,8 @@ public class CourseServiceImpl implements CourseService {
 
     }
 
+
+    @Transactional
     @Override
     public CourseModel findCourseById(UUID courseId) {
         return courseRepository.findById(courseId)

@@ -1,12 +1,10 @@
 package com.ead.course.controllers;
 
 import com.ead.course.dtos.ModuleDTO;
-import com.ead.course.dtos.ModulePageDto;
 import com.ead.course.models.ModuleModel;
 import com.ead.course.service.CourseService;
 import com.ead.course.service.ModuleService;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +50,27 @@ public class ModuleController {
             @PathVariable("moduleId") UUID moduleId
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(moduleService.findModuleIntoCourse(courseService.findCourseById(courseId), moduleId));
+    }
+
+    @DeleteMapping("/courses/{courseId}/modules/{moduleId}")
+    public ResponseEntity<Object> deleteModule(
+            @PathVariable("courseId") UUID courseId,
+            @PathVariable("moduleId") UUID moduleId
+    ) {
+        ModuleModel module = moduleService.findModuleIntoCourse(courseService.findCourseById(courseId), moduleId);
+        moduleService.deleteModule(module);
+        return ResponseEntity.status(HttpStatus.OK).body("Module deleted successfully");
+    }
+
+
+    @PutMapping("/courses/{courseId}/modules/{moduleId}")
+    public ResponseEntity<Object> updateModule(
+            @PathVariable("courseId") UUID courseId,
+            @PathVariable("moduleId") UUID moduleId,
+            @RequestBody @Valid ModuleDTO moduleDTO
+    ) {
+        ModuleModel module = moduleService.findModuleIntoCourse(courseService.findCourseById(courseId), moduleId);
+        return ResponseEntity.status(HttpStatus.OK).body(moduleService.updateModule(module, moduleDTO));
     }
 
 }

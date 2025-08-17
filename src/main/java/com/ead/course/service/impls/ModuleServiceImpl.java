@@ -34,6 +34,7 @@ public class ModuleServiceImpl implements ModuleService {
         moduleRepository.delete(module);
     }
 
+    @Transactional
     @Override
     public ModuleModel saveModule(CourseModel courseById, ModuleDTO moduleDTO) {
         ModuleModel moduleModel = new ModuleModel();
@@ -43,6 +44,7 @@ public class ModuleServiceImpl implements ModuleService {
         return moduleRepository.save(moduleModel);
     }
 
+    @Transactional
     @Override
     public ModulePageDto findAllModulesIntoCourse(Pageable pageable, CourseModel courseById, String title,
                                                   String description) {
@@ -65,11 +67,19 @@ public class ModuleServiceImpl implements ModuleService {
         return ModulePageDto.from(pageResult);
     }
 
+    @Transactional
     @Override
     public ModuleModel findModuleIntoCourse(CourseModel courseById, UUID moduleId) {
         return moduleRepository.findByModuleIdAndCourse(moduleId, courseById).orElseThrow(
                 () -> new RuntimeException("Module not found for this course.")
         );
+    }
+
+    @Transactional
+    @Override
+    public ModuleModel updateModule(ModuleModel module, ModuleDTO moduleDTO) {
+        BeanUtils.copyProperties(moduleDTO, module);
+        return moduleRepository.save(module);
     }
 
 }
