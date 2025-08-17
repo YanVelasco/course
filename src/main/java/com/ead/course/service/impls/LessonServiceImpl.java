@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class LessonServiceImpl implements LessonService {
@@ -62,5 +63,18 @@ public class LessonServiceImpl implements LessonService {
         Page<LessonModel> pageResult = lessonRepository.findAll(spec, pageable);
         return LessonPageDto.from(pageResult);
     }
+
+    @Override
+    public LessonModel findOneLessonIntoModule(ModuleModel moduleById, UUID lessonId) {
+        return lessonRepository.findByLessonIdAndModule(lessonId, moduleById)
+                .orElseThrow(() -> new RuntimeException("Lesson not found with id: " + lessonId));
+    }
+
+    @Override
+    public LessonModel updateLesson(LessonModel lesson, LessonDto lessonDto) {
+        BeanUtils.copyProperties(lessonDto, lesson);
+        return lessonRepository.save(lesson);
+    }
+
 
 }

@@ -2,8 +2,7 @@ package com.ead.course.controllers;
 
 import com.ead.course.dtos.LessonDto;
 import com.ead.course.dtos.LessonPageDto;
-import com.ead.course.dtos.ModuleDTO;
-import com.ead.course.models.ModuleModel;
+import com.ead.course.models.LessonModel;
 import com.ead.course.service.LessonService;
 import com.ead.course.service.ModuleService;
 import jakarta.validation.Valid;
@@ -22,8 +21,8 @@ public class LessonController {
     final ModuleService moduleService;
 
     public LessonController(LessonService lessonService, ModuleService moduleService) {
-        this.lessonService = lessonService;
         this.moduleService = moduleService;
+        this.lessonService = lessonService;
     }
 
     @PostMapping("/modules/{moduleId}/lessons")
@@ -48,6 +47,37 @@ public class LessonController {
                         pageable, moduleService.findModuleById(moduleId), title, description
                 )
         );
+    }
+
+    @GetMapping("/modules/{moduleId}/lessons/{lessonId}")
+    public ResponseEntity<Object> getOneLesson(
+            @PathVariable("moduleId") UUID moduleId,
+            @PathVariable("lessonId") UUID lessonId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                lessonService.findOneLessonIntoModule(moduleService.findModuleById(moduleId), lessonId)
+        );
+    }
+
+    @DeleteMapping("/modules/{moduleId}/lessons/{lessonId}")
+    public ResponseEntity<Object> deleteLesson(
+            @PathVariable("moduleId") UUID moduleId,
+            @PathVariable("lessonId") UUID lessonId
+    ) {
+        lessonService.deleteLesson(
+                lessonService.findOneLessonIntoModule(moduleService.findModuleById(moduleId), lessonId)
+        );
+        return ResponseEntity.status(HttpStatus.OK).body("Lesson deleted successfully");
+    }
+
+    @PutMapping("/modules/{moduleId}/lessons/{lessonId}")
+    public ResponseEntity<Object> updateLesson(
+            @PathVariable("moduleId") UUID moduleId,
+            @PathVariable("lessonId") UUID lessonId,
+            @RequestBody @Valid LessonDto lessonDto
+    ) {
+        LessonModel lesson = lessonService.findOneLessonIntoModule(moduleService.findModuleById(moduleId), lessonId);
+        return ResponseEntity.status(HttpStatus.OK).body(lessonService.updateLesson(lesson, lessonDto));
     }
 
 }
