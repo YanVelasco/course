@@ -62,7 +62,7 @@ public class ModuleServiceImpl implements ModuleService {
 
         Specification<ModuleModel> spec = Specification.allOf(parts);
         Page<ModuleModel> pageResult = moduleRepository.findAll(spec, pageable);
-        return ModulePageDto.from(pageResult, courseById);
+        return ModulePageDto.from(pageResult);
     }
 
     @Override

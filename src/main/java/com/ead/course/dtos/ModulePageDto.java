@@ -7,8 +7,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public record ModulePageDto(
-        CourseModel course,
-        List<ModuleModel> modules,
+        List<ModuleModel> content,
         int pageNumber,
         int pageSize,
         long totalElements,
@@ -18,9 +17,8 @@ public record ModulePageDto(
         boolean empty
 ) {
 
-    public static ModulePageDto from(Page<ModuleModel> page, CourseModel course) {
+    public static ModulePageDto from(Page<ModuleModel> page) {
         return new ModulePageDto(
-                course,
                 page.getContent(),
                 page.getNumber(),
                 page.getSize(),
