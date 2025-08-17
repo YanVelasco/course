@@ -1,5 +1,6 @@
 package com.ead.course.repositories;
 
+import com.ead.course.models.CourseModel;
 import com.ead.course.models.ModuleModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ModuleRepository extends JpaRepository<ModuleModel, UUID>, JpaSpecificationExecutor<ModuleModel> {
@@ -16,5 +18,7 @@ public interface ModuleRepository extends JpaRepository<ModuleModel, UUID>, JpaS
 
     @EntityGraph(attributePaths = {"course"})
     Page<ModuleModel> findAll(Specification<ModuleModel> spec, Pageable pageable);
+
+    Optional<ModuleModel> findByModuleIdAndCourse(UUID moduleId, CourseModel courseById);
 
 }

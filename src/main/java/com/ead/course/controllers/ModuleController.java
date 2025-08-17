@@ -46,4 +46,12 @@ public class ModuleController {
                 pageable, courseService.findCourseById(courseId), title, description));
     }
 
+    @GetMapping("/courses/{courseId}/modules/{moduleId}")
+    public ResponseEntity<Object> getOneModule(
+            @PathVariable("courseId") UUID courseId,
+            @PathVariable("moduleId") UUID moduleId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(moduleService.findModuleIntoCourse(courseService.findCourseById(courseId), moduleId));
+    }
+
 }

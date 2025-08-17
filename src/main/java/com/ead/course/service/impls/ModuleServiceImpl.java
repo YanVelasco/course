@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ModuleServiceImpl implements ModuleService {
@@ -43,7 +44,8 @@ public class ModuleServiceImpl implements ModuleService {
     }
 
     @Override
-    public ModulePageDto findAllModulesIntoCourse(Pageable pageable, CourseModel courseById, String title, String description) {
+    public ModulePageDto findAllModulesIntoCourse(Pageable pageable, CourseModel courseById, String title,
+                                                  String description) {
         List<Specification<ModuleModel>> parts = new ArrayList<>();
 
         parts.add((root, query, cb) -> cb.equal(root.get("course").get("courseId"), courseById.getCourseId()));
@@ -61,6 +63,13 @@ public class ModuleServiceImpl implements ModuleService {
         Specification<ModuleModel> spec = Specification.allOf(parts);
         Page<ModuleModel> pageResult = moduleRepository.findAll(spec, pageable);
         return ModulePageDto.from(pageResult, courseById);
+    }
+
+    @Override
+    public ModuleModel findModuleIntoCourse(CourseModel courseById, UUID moduleId) {
+        return moduleRepository.findByModuleIdAndCourse(moduleId, courseById).orElseThrow(
+                () -> new RuntimeException("Module not found for this course.")
+        );
     }
 
 }

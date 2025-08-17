@@ -6,6 +6,8 @@ import com.ead.course.models.CourseModel;
 import com.ead.course.models.ModuleModel;
 import org.springframework.data.domain.Pageable;
 
+import java.util.UUID;
+
 public interface ModuleService {
 
     void deleteModule(ModuleModel module);
@@ -13,5 +15,7 @@ public interface ModuleService {
     ModuleModel saveModule(CourseModel courseById, ModuleDTO moduleDTO);
 
     ModulePageDto findAllModulesIntoCourse(Pageable pageable, CourseModel courseById, String title, String description);
+
+    ModuleModel findModuleIntoCourse(CourseModel courseById, UUID moduleId);
 
 }
