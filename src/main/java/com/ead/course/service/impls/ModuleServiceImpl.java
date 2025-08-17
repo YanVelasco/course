@@ -82,4 +82,11 @@ public class ModuleServiceImpl implements ModuleService {
         return moduleRepository.save(module);
     }
 
+    @Override
+    public ModuleModel findModuleById(UUID moduleId) {
+        return moduleRepository.findById(moduleId).orElseThrow(
+                () -> new RuntimeException("Module not found with ID: " + moduleId)
+        );
+    }
+
 }

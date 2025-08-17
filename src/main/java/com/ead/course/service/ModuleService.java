@@ -21,4 +21,6 @@ public interface ModuleService {
 
     ModuleModel updateModule(ModuleModel module, @Valid ModuleDTO moduleDTO);
 
+    ModuleModel findModuleById(UUID moduleId);
+
 }
