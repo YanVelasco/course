@@ -2,6 +2,7 @@ package com.ead.course.service.impls;
 
 import com.ead.course.dtos.ModuleDTO;
 import com.ead.course.dtos.ModulePageDto;
+import com.ead.course.exceptions.NotFoundException;
 import com.ead.course.models.CourseModel;
 import com.ead.course.models.ModuleModel;
 import com.ead.course.repositories.ModuleRepository;
@@ -85,7 +86,9 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     public ModuleModel findModuleById(UUID moduleId) {
         return moduleRepository.findById(moduleId).orElseThrow(
-                () -> new RuntimeException("Module not found with ID: " + moduleId)
+                () -> new NotFoundException(
+                        String.format("Module with id %s not found.", moduleId)
+                )
         );
     }
 

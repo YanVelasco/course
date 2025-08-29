@@ -5,6 +5,7 @@ import com.ead.course.dtos.CourseDto;
 import com.ead.course.dtos.CoursePageDto;
 import com.ead.course.enums.CourseLevel;
 import com.ead.course.enums.CourseStatus;
+import com.ead.course.exceptions.NotFoundException;
 import com.ead.course.models.CourseModel;
 import com.ead.course.repositories.CourseRepository;
 import com.ead.course.service.CourseService;
@@ -94,7 +95,9 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseModel findCourseById(UUID courseId) {
         return courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Course with id %s not found", courseId)
+                ));
     }
 
     @Transactional
