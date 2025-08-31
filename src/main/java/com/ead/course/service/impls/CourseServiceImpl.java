@@ -9,6 +9,8 @@ import com.ead.course.exceptions.NotFoundException;
 import com.ead.course.models.CourseModel;
 import com.ead.course.repositories.CourseRepository;
 import com.ead.course.service.CourseService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -25,6 +27,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Service
 public class CourseServiceImpl implements CourseService {
 
+    private static final Logger logger = LogManager.getLogger(CourseServiceImpl.class);
     final CourseRepository courseRepository;
 
     public CourseServiceImpl(CourseRepository courseRepository) {
@@ -34,28 +37,34 @@ public class CourseServiceImpl implements CourseService {
     @Transactional
     @Override
     public void delete(CourseModel courseModel) {
+        logger.debug("Deleting course: {}", courseModel);
         courseRepository.delete(courseModel);
+        logger.debug("Course deleted: {}", courseModel.getCourseId());
     }
 
     @Transactional
     @Override
     public CourseModel save(CourseDto courseDto) {
+        logger.debug("Saving new course: {}", courseDto);
         var courseModel = new CourseModel();
         BeanUtils.copyProperties(courseDto, courseModel);
         courseModel.setCreationDate(LocalDateTime.now(ZoneId.of("UTC")));
         courseModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
-        return courseRepository.save(courseModel);
+        var saved = courseRepository.save(courseModel);
+        logger.debug("Course saved: {}", saved);
+        return saved;
     }
 
     @Override
     public Boolean existsByName(String name) {
+        logger.debug("Checking if course exists by name: {}", name);
         return courseRepository.existsByName(name);
     }
 
     @Transactional
     @Override
     public CoursePageDto findAll(Pageable pageable, String name, CourseStatus courseStatus, String description, CourseLevel courseLevel, UUID userInstructor) {
-
+        logger.debug("Finding all courses with filters - name: {}, courseStatus: {}, description: {}, courseLevel: {}, userInstructor: {}", name, courseStatus, description, courseLevel, userInstructor);
         Specification<CourseModel> spec = (root, query, cb)  -> cb.conjunction();
 
         if (name != null && !name.isBlank()) {
@@ -86,26 +95,31 @@ public class CourseServiceImpl implements CourseService {
             }
         }
 
+        logger.debug("Courses page result: {}", pageResult);
         return CoursePageDto.from(pageResult);
-
     }
-
 
     @Transactional
     @Override
     public CourseModel findCourseById(UUID courseId) {
-        return courseRepository.findById(courseId)
+        logger.debug("Finding course by id: {}", courseId);
+        var course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Course with id %s not found", courseId)
                 ));
+        logger.debug("Course found: {}", course);
+        return course;
     }
 
     @Transactional
     @Override
     public CourseModel updateCourse(CourseModel courseModel, CourseDto courseDto) {
+        logger.debug("Updating course: {}, with data: {}", courseModel, courseDto);
         BeanUtils.copyProperties(courseDto, courseModel);
         courseModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
-        return courseRepository.save(courseModel);
+        var updated = courseRepository.save(courseModel);
+        logger.debug("Course updated: {}", updated);
+        return updated;
     }
 
 }

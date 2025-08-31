@@ -4,6 +4,8 @@ import com.ead.course.exceptions.NotFoundException;
 import com.ead.course.exceptions.response.ErrorResponseDto;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger logger = LogManager.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDto> handleValidationException(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -29,12 +33,14 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         var errorResponse = new ErrorResponseDto(HttpStatus.BAD_REQUEST.value(), "Validation failed", errors);
+        logger.error("Validation errors: {}", errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleNotFoundException(NotFoundException ex) {
         var errorResponse = new ErrorResponseDto(HttpStatus.NOT_FOUND.value(), ex.getMessage(), null);
+        logger.error("NotFoundException: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
@@ -53,6 +59,7 @@ public class GlobalExceptionHandler {
                         .map(Object::toString)
                         .collect(Collectors.joining(", "));
                 errors.put(fieldName, "Enum value incorrect '" + ife.getValue() + "'. Accept values: " + accepted);
+                logger.error("Invalid Enum value: {}. Accept values: {}", ife.getValue(), accepted);
                 return ResponseEntity.badRequest().body(new ErrorResponseDto(
                         HttpStatus.BAD_REQUEST.value(),
                         "Invalid Enum value",
@@ -60,10 +67,13 @@ public class GlobalExceptionHandler {
                 ));
             }
             errors.put(fieldName, "Invalid value: " + ife.getValue());
+            logger.error("Invalid value for field {}: {}", fieldName, ife.getValue());
         } else if (root instanceof JsonParseException jpe) {
             errors.put("json", "Malformed JSON: " + jpe.getOriginalMessage());
+            logger.error("Malformed JSON: {}", jpe.getOriginalMessage());
         } else {
             errors.put("message", root.getMessage());
+            logger.error("Malformed JSON request: {}", root.getMessage());
         }
 
         return ResponseEntity.badRequest().body(new ErrorResponseDto(
@@ -71,7 +81,6 @@ public class GlobalExceptionHandler {
                 "Malformed JSON request",
                 errors
         ));
-
     }
 
 }
