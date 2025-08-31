@@ -1,6 +1,7 @@
 package com.ead.course.configs;
 
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,7 @@ public class DateConfig {
     public Jackson2ObjectMapperBuilderCustomizer customizer() {
         return builder -> {
             builder.serializers(
-                    new LocalDateSerializer(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT))
+                    new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(DATE_TIME_FORMAT))
             );
         };
     }
