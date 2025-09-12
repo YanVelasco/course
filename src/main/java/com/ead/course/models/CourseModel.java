@@ -74,4 +74,8 @@ public class CourseModel extends RepresentationModel<CourseModel> implements Ser
     @Fetch(FetchMode.SUBSELECT)
     private Set<ModuleModel> modules;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @OneToMany(mappedBy = "courseId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<CourseUserModel> userCourse;
+
 }
