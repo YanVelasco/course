@@ -62,6 +62,9 @@ public class CourseModel extends RepresentationModel<CourseModel> implements Ser
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Column(name = "user_instructor", nullable = false)
+    private UUID userInstructor;
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToMany(
             mappedBy = "course", fetch = FetchType.LAZY,
