@@ -9,6 +9,8 @@ import com.ead.course.exceptions.NotFoundException;
 import com.ead.course.models.CourseModel;
 import com.ead.course.repositories.CourseRepository;
 import com.ead.course.service.CourseService;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
@@ -84,7 +86,10 @@ public class CourseServiceImpl implements CourseService {
         }
 
         if (userInstructor != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("userInstructor"), userInstructor));
+            spec = spec.and((root, query, cb) -> {
+                Join<Object, Object> courseUsersJoin = root.join("courseUsers", JoinType.INNER);
+                return cb.equal(courseUsersJoin.get("userId"),userInstructor);
+            });
         }
 
         var pageResult = courseRepository.findAll(spec, pageable);

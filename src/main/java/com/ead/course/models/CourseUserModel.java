@@ -34,6 +34,6 @@ public class CourseUserModel extends RepresentationModel<CourseModel> implements
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "course_id", nullable = false)
-    private CourseModel courseId;
+    private CourseModel course;
 
 }

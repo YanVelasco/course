@@ -59,9 +59,6 @@ public class CourseModel extends RepresentationModel<CourseModel> implements Ser
     @Enumerated(EnumType.STRING)
     private CourseLevel courseLevel;
 
-    @Column(name = "user_instructor", nullable = false)
-    private UUID userInstructor;
-
     @Column(name = "image_url")
     private String imageUrl;
 
@@ -75,7 +72,7 @@ public class CourseModel extends RepresentationModel<CourseModel> implements Ser
     private Set<ModuleModel> modules;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "courseId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<CourseUserModel> userCourse;
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<CourseUserModel> courseUsers;
 
 }
