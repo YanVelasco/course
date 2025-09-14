@@ -2,7 +2,9 @@ package com.ead.course.controllers;
 
 import com.ead.course.clients.AuthUserClient;
 import com.ead.course.dtos.SubscriptionDto;
+import com.ead.course.dtos.UserDto;
 import com.ead.course.dtos.UserPageDto;
+import com.ead.course.enums.UserStatus;
 import com.ead.course.models.CourseUserModel;
 import com.ead.course.service.CourseService;
 import com.ead.course.service.CourseUserService;
@@ -43,6 +45,12 @@ public class CourseUserController {
             @PathVariable(value = "courseId") UUID courseId,
             @RequestBody @Valid SubscriptionDto subscriptionDto
     ) {
+
+        ResponseEntity<UserDto> responseUser = authUserClient.getOneUserByUserId(subscriptionDto.userId());
+        if (responseUser.getBody().userStatus().equals(UserStatus.BLOCKED)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User is blocked.");
+        }
+
         var course = courseService.findCourseById(courseId);
         courseUserService.existsByCourseAndUserId(course, subscriptionDto.userId());
 
