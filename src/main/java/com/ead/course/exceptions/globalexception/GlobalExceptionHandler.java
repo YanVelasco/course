@@ -1,5 +1,6 @@
 package com.ead.course.exceptions.globalexception;
 
+import com.ead.course.exceptions.AlreadySubscribedException;
 import com.ead.course.exceptions.NotFoundException;
 import com.ead.course.exceptions.response.ErrorResponseDto;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -81,6 +82,13 @@ public class GlobalExceptionHandler {
                 "Malformed JSON request",
                 errors
         ));
+    }
+
+    @ExceptionHandler(AlreadySubscribedException.class)
+    public ResponseEntity<ErrorResponseDto> handleAlreadySubscribedException(AlreadySubscribedException ex) {
+        var errorResponse = new ErrorResponseDto(HttpStatus.CONFLICT.value(), ex.getMessage(), null);
+        logger.error("AlreadySubscribedException: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
 }
