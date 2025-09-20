@@ -1,5 +1,6 @@
 package com.ead.course.clients;
 
+import com.ead.course.dtos.CourseUserDto;
 import com.ead.course.dtos.UserDto;
 import com.ead.course.dtos.UserPageDto;
 import com.ead.course.exceptions.NotFoundException;
@@ -7,11 +8,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.util.UUID;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Component
 public class AuthUserClient {
@@ -57,6 +61,26 @@ public class AuthUserClient {
                     throw new NotFoundException("User not found.");
                 }))
                 .toEntity(UserDto.class);
+
+    }
+
+    public void saveSubscriptionUserInCourse(UUID userId, UUID courseId) {
+        String url = BASE_URL_AUTHUSER + "/users/" + userId + "/courses/subscription";
+        logger.debug("Request URL: {}", url);
+
+        try{
+            var courseUserDto = new CourseUserDto(userId, courseId);
+            restClient
+                    .post()
+                    .uri(url)
+                    .contentType(APPLICATION_JSON)
+                    .body(courseUserDto)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (Exception e) {
+            logger.error("Error saving subscription for user {}: {}", userId, e.getMessage());
+            throw new RuntimeException("Error saving subscription for user.", e);
+        }
 
     }
 
