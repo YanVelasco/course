@@ -4,12 +4,14 @@ import com.ead.course.dtos.CourseDto;
 import com.ead.course.enums.CourseLevel;
 import com.ead.course.enums.CourseStatus;
 import com.ead.course.service.CourseService;
+import com.ead.course.validations.CourseValidator;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -20,20 +22,23 @@ public class CourseController {
 
     private static final Logger logger = LogManager.getLogger(CourseController.class);
     final CourseService courseService;
+    final CourseValidator courseValidator;
 
-    public CourseController(CourseService courseService) {
+    public CourseController(CourseService courseService, CourseValidator courseValidator) {
         this.courseService = courseService;
+        this.courseValidator = courseValidator;
     }
 
     @PostMapping
     public ResponseEntity<Object> saveCourse(
-            @RequestBody @Valid CourseDto courseDto
+            @RequestBody  CourseDto courseDto,
+            Errors errors
     ){
         logger.debug("POST saveCourse: {}", courseDto);
-        if (courseService.existsByName(courseDto.name())) {
-            logger.warn("Course with name {} already exists.", courseDto.name());
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Course with name " + courseDto.name() + " already exists.");
+        courseValidator.validate(courseDto, errors);
+        if (errors.hasErrors()) {
+            logger.warn("Validation errors: {}", errors.getAllErrors());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.getAllErrors());
         }
         var saved = courseService.save(courseDto);
         logger.debug("Course created: {}", saved);
