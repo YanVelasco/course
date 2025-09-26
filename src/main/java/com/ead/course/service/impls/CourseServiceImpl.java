@@ -8,6 +8,7 @@ import com.ead.course.enums.CourseStatus;
 import com.ead.course.exceptions.NotFoundException;
 import com.ead.course.models.CourseModel;
 import com.ead.course.repositories.CourseRepository;
+import com.ead.course.repositories.CourseUserRepository;
 import com.ead.course.service.CourseService;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
@@ -31,15 +32,21 @@ public class CourseServiceImpl implements CourseService {
 
     private static final Logger logger = LogManager.getLogger(CourseServiceImpl.class);
     final CourseRepository courseRepository;
+    final CourseUserRepository courseUserRepository;
 
-    public CourseServiceImpl(CourseRepository courseRepository) {
+    public CourseServiceImpl(CourseRepository courseRepository, CourseUserRepository courseUserRepository) {
         this.courseRepository = courseRepository;
+        this.courseUserRepository = courseUserRepository;
     }
 
     @Transactional
     @Override
     public void delete(CourseModel courseModel) {
         logger.debug("Deleting course: {}", courseModel);
+        var courseUsers = courseUserRepository.findAllByCourse(courseModel);
+        if (courseUsers.isEmpty()) {
+            courseUserRepository.deleteAll(courseUsers);
+        }
         courseRepository.delete(courseModel);
         logger.debug("Course deleted: {}", courseModel.getCourseId());
     }

@@ -74,7 +74,7 @@ public class CourseModel extends RepresentationModel<CourseModel> implements Ser
     private Set<ModuleModel> modules;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     private Set<CourseUserModel> courseUsers;
 
     public CourseUserModel convertToCourseUserModel(UUID userId) {
