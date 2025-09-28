@@ -35,6 +35,7 @@ public class CourseUserController {
             Pageable pageable,
             @PathVariable(value = "courseId") UUID courseId
     ) {
+        courseService.findCourseById(courseId);
         return ResponseEntity.status(HttpStatus.OK).body(
                 authUserClient.getAllUsersByCourse(courseId, pageable)
         );
