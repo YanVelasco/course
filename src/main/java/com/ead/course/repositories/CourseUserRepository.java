@@ -8,6 +8,12 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CourseUserRepository extends JpaRepository<CourseUserModel, UUID> {
+
     boolean existsByCourseAndUserId(CourseModel course, UUID uuid);
     List<CourseUserModel> findAllByCourse(CourseModel course);
+
+    boolean existsByUserId(UUID userId);
+
+    void deleteByUserId(UUID userId);
+
 }
