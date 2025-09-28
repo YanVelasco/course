@@ -1,5 +1,6 @@
 package com.ead.course.service.impls;
 
+import com.ead.course.clients.AuthUserClient;
 import com.ead.course.controllers.CourseController;
 import com.ead.course.dtos.CourseDto;
 import com.ead.course.dtos.CoursePageDto;
@@ -33,22 +34,30 @@ public class CourseServiceImpl implements CourseService {
     private static final Logger logger = LogManager.getLogger(CourseServiceImpl.class);
     final CourseRepository courseRepository;
     final CourseUserRepository courseUserRepository;
+    private final AuthUserClient authUserClient;
 
-    public CourseServiceImpl(CourseRepository courseRepository, CourseUserRepository courseUserRepository) {
+    public CourseServiceImpl(CourseRepository courseRepository, CourseUserRepository courseUserRepository, AuthUserClient authUserClient) {
         this.courseRepository = courseRepository;
         this.courseUserRepository = courseUserRepository;
+        this.authUserClient = authUserClient;
     }
 
     @Transactional
     @Override
     public void delete(CourseModel courseModel) {
+        Boolean deleteCourseUserInAuthUser = true;
         logger.debug("Deleting course: {}", courseModel);
         var courseUsers = courseUserRepository.findAllByCourse(courseModel);
         if (courseUsers.isEmpty()) {
             courseUserRepository.deleteAll(courseUsers);
+            deleteCourseUserInAuthUser = true;
         }
         courseRepository.delete(courseModel);
         logger.debug("Course deleted: {}", courseModel.getCourseId());
+        if (deleteCourseUserInAuthUser) {
+            logger.debug("Course {} deleted in AuthUser service", courseModel.getCourseId());
+            authUserClient.deleteUserCourseByCourse(courseModel.getCourseId());
+        }
     }
 
     @Transactional

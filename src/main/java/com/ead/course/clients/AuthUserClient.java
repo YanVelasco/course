@@ -84,4 +84,19 @@ public class AuthUserClient {
 
     }
 
+    public void deleteUserCourseByCourse(UUID courseId) {
+        String url = BASE_URL_AUTHUSER + "/users/courses/" + courseId;
+        logger.debug("Request URL: {}", url);
+        try {
+            restClient
+                    .delete()
+                    .uri(url)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (Exception e) {
+            logger.error("Error deleting user course by course {}: {}", courseId, e.getMessage());
+            throw new RuntimeException("Error deleting user course by course.", e);
+        }
+    }
+
 }
