@@ -1,6 +1,5 @@
 package com.ead.course.service.impls;
 
-import com.ead.course.clients.AuthUserClient;
 import com.ead.course.controllers.CourseController;
 import com.ead.course.dtos.CourseDto;
 import com.ead.course.dtos.CoursePageDto;
@@ -9,7 +8,6 @@ import com.ead.course.enums.CourseStatus;
 import com.ead.course.exceptions.NotFoundException;
 import com.ead.course.models.CourseModel;
 import com.ead.course.repositories.CourseRepository;
-import com.ead.course.repositories.CourseUserRepository;
 import com.ead.course.service.CourseService;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
@@ -33,31 +31,15 @@ public class CourseServiceImpl implements CourseService {
 
     private static final Logger logger = LogManager.getLogger(CourseServiceImpl.class);
     final CourseRepository courseRepository;
-    final CourseUserRepository courseUserRepository;
-    private final AuthUserClient authUserClient;
 
-    public CourseServiceImpl(CourseRepository courseRepository, CourseUserRepository courseUserRepository, AuthUserClient authUserClient) {
+    public CourseServiceImpl(CourseRepository courseRepository) {
         this.courseRepository = courseRepository;
-        this.courseUserRepository = courseUserRepository;
-        this.authUserClient = authUserClient;
     }
 
     @Transactional
     @Override
     public void delete(CourseModel courseModel) {
-        Boolean deleteCourseUserInAuthUser = true;
-        logger.debug("Deleting course: {}", courseModel);
-        var courseUsers = courseUserRepository.findAllByCourse(courseModel);
-        if (courseUsers.isEmpty()) {
-            courseUserRepository.deleteAll(courseUsers);
-            deleteCourseUserInAuthUser = true;
-        }
         courseRepository.delete(courseModel);
-        logger.debug("Course deleted: {}", courseModel.getCourseId());
-        if (deleteCourseUserInAuthUser) {
-            logger.debug("Course {} deleted in AuthUser service", courseModel.getCourseId());
-            authUserClient.deleteUserCourseByCourse(courseModel.getCourseId());
-        }
     }
 
     @Transactional
@@ -81,9 +63,11 @@ public class CourseServiceImpl implements CourseService {
 
     @Transactional
     @Override
-    public CoursePageDto findAll(Pageable pageable, String name, CourseStatus courseStatus, String description, CourseLevel courseLevel, UUID userInstructor) {
-        logger.debug("Finding all courses with filters - name: {}, courseStatus: {}, description: {}, courseLevel: {}, userInstructor: {}", name, courseStatus, description, courseLevel, userInstructor);
-        Specification<CourseModel> spec = (root, query, cb)  -> cb.conjunction();
+    public CoursePageDto findAll(Pageable pageable, String name, CourseStatus courseStatus, String description,
+                                 CourseLevel courseLevel, UUID userInstructor) {
+        logger.debug("Finding all courses with filters - name: {}, courseStatus: {}, description: {}, courseLevel: " +
+                "{}, userInstructor: {}", name, courseStatus, description, courseLevel, userInstructor);
+        Specification<CourseModel> spec = (root, query, cb) -> cb.conjunction();
 
         if (name != null && !name.isBlank()) {
             spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
@@ -94,7 +78,8 @@ public class CourseServiceImpl implements CourseService {
         }
 
         if (description != null && !description.isBlank()) {
-            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("description")), "%" + description.toLowerCase() + "%"));
+            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("description")),
+                    "%" + description.toLowerCase() + "%"));
         }
 
         if (courseLevel != null) {
@@ -103,8 +88,8 @@ public class CourseServiceImpl implements CourseService {
 
         if (userInstructor != null) {
             spec = spec.and((root, query, cb) -> {
-                Join<Object, Object> courseUsersJoin = root.join("courseUsers", JoinType.INNER);
-                return cb.equal(courseUsersJoin.get("userId"),userInstructor);
+                Join<Object, Object> courseUsersJoin = root.join("userId", JoinType.INNER);
+                return cb.equal(courseUsersJoin.get("userId"), userInstructor);
             });
         }
 
