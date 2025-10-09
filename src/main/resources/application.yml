@@ -18,6 +18,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  rabbitmq:
+    addresses: amqps://wzbbzfre:FF7tphOEWZQ5cwJAmfOJ_2zXQ_nGulkr@jackal.rmq.cloudamqp.com/wzbbzfre
 ead:
   api:
     url:
