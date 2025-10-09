@@ -73,4 +73,14 @@ public class CourseModel extends RepresentationModel<CourseModel> implements Ser
     @Fetch(FetchMode.SUBSELECT)
     private Set<ModuleModel> modules;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "TB_COURSES_USERS",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @Fetch(FetchMode.SUBSELECT)
+    private Set<UserModel> users;
+
 }

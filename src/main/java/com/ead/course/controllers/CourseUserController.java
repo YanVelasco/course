@@ -1,7 +1,9 @@
 package com.ead.course.controllers;
 
 import com.ead.course.dtos.SubscriptionDto;
+import com.ead.course.dtos.UserPageDto;
 import com.ead.course.service.CourseService;
+import com.ead.course.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -14,18 +16,27 @@ import java.util.UUID;
 public class CourseUserController {
 
     final CourseService courseService;
+    final UserService userService;
 
-    public CourseUserController(CourseService courseService) {
+    public CourseUserController(CourseService courseService, UserService userService) {
         this.courseService = courseService;
+        this.userService = userService;
     }
 
     @GetMapping("/courses/{courseId}/users")
-    public ResponseEntity<Object> getAlUsersByCourse(
+    public ResponseEntity<UserPageDto> getAlUsersByCourse(
             Pageable pageable,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String fullName,
+            @RequestParam(required = false) String userStatus,
+            @RequestParam(required = false) String UserType,
             @PathVariable(value = "courseId") UUID courseId
     ) {
         courseService.findCourseById(courseId);
-        return ResponseEntity.status(HttpStatus.OK).body("");
+
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findUserByCourse(
+                courseId, pageable, name, fullName, userStatus, UserType
+        ));
     }
 
     @PostMapping("/courses/{courseId}/users/subscription")

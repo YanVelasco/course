@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
 
+import static java.util.Objects.requireNonNull;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -67,7 +68,10 @@ public class CourseServiceImpl implements CourseService {
                                  CourseLevel courseLevel, UUID userInstructor) {
         logger.debug("Finding all courses with filters - name: {}, courseStatus: {}, description: {}, courseLevel: " +
                 "{}, userInstructor: {}", name, courseStatus, description, courseLevel, userInstructor);
-        Specification<CourseModel> spec = (root, query, cb) -> cb.conjunction();
+        Specification<CourseModel> spec = (root, query, cb) -> {
+            requireNonNull(query).distinct(true);
+            return cb.conjunction();
+        };
 
         if (name != null && !name.isBlank()) {
             spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
@@ -88,7 +92,7 @@ public class CourseServiceImpl implements CourseService {
 
         if (userInstructor != null) {
             spec = spec.and((root, query, cb) -> {
-                Join<Object, Object> courseUsersJoin = root.join("userId", JoinType.INNER);
+                Join<Object, Object> courseUsersJoin = root.join("users", JoinType.INNER);
                 return cb.equal(courseUsersJoin.get("userId"), userInstructor);
             });
         }
