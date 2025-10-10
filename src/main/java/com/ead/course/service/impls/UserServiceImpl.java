@@ -46,4 +46,9 @@ public class UserServiceImpl implements UserService {
         var page = repository.findAll(spec, pageable);
         return UserPageDto.from(page);
     }
+
+    @Override
+    public UserModel save(UserModel userModel) {
+        return repository.save(userModel);
+    }
 }

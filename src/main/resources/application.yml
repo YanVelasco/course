@@ -24,6 +24,12 @@ ead:
   api:
     url:
       authuser: "http://ead-authuser-service/ead-authuser"
+  broker:
+    exchange:
+      userEventExchange: ead.userEvent
+    queue:
+      userEventQueue:
+        name: ead.userEvent.ms.course
 logging:
   level:
     com.ead: TRACE
