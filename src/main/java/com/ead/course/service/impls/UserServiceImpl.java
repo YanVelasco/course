@@ -7,6 +7,7 @@ import com.ead.course.service.UserService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,15 +24,18 @@ public class UserServiceImpl implements UserService {
         this.repository = repository;
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public UserPageDto findUserByCourse(UUID courseId, Pageable pageable, String name, String fullName, String userStatus, String userType) {
+    public UserPageDto findUserByCourse(UUID courseId, Pageable pageable, String name, String fullName,
+                                        String userStatus, String userType) {
         List<Specification<UserModel>> specifications = new ArrayList<>();
         specifications.add((root, query, cb) -> {
             requireNonNull(query).distinct(true);
             return cb.equal(root.join("courses").get("courseId"), courseId);
         });
         if (name != null) {
-            specifications.add((root, query, cb) -> cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
+            specifications.add((root, query, cb) -> cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() +
+                    "%"));
         }
         if (fullName != null) {
             specifications.add((root, query, cb) -> cb.equal(root.get("fullName"), fullName));
@@ -42,13 +46,21 @@ public class UserServiceImpl implements UserService {
         if (userType != null) {
             specifications.add((root, query, cb) -> cb.equal(root.get("userType"), userType));
         }
-        Specification<UserModel> spec = specifications.stream().reduce(Specification::and).orElse((root, query, cb) -> cb.conjunction());
+        Specification<UserModel> spec =
+                specifications.stream().reduce(Specification::and).orElse((root, query, cb) -> cb.conjunction());
         var page = repository.findAll(spec, pageable);
         return UserPageDto.from(page);
     }
 
+    @Transactional
     @Override
-    public UserModel save(UserModel userModel) {
-        return repository.save(userModel);
+    public void save(UserModel userModel) {
+        repository.save(userModel);
+    }
+
+    @Transactional
+    @Override
+    public void delete(UUID userId) {
+        repository.findById(userId).ifPresent(repository::delete);
     }
 }

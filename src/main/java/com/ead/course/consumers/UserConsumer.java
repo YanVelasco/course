@@ -31,7 +31,8 @@ public class UserConsumer {
     public void listenUserEvent(@Payload UserEventDto userEventDto) {
         var userModel = userEventDto.convertToUserModel();
         switch (ActionType.valueOf(userEventDto.actionType())) {
-            case CREATE -> userService.save(userModel);
+            case CREATE, UPDATE -> userService.save(userModel);
+            case DELETE -> userService.delete(userModel.getUserId());
             default -> throw new IllegalArgumentException("Invalid action type: " + userEventDto.actionType());
         }
     }

@@ -10,6 +10,8 @@ public interface UserService {
 
     UserPageDto findUserByCourse(UUID courseId, Pageable pageable, String name, String fullName, String userStatus, String userType);
 
-    UserModel save(UserModel userModel);
+    void save(UserModel userModel);
+
+    void delete(UUID userId);
 
 }
