@@ -7,6 +7,7 @@ import com.ead.course.enums.CourseLevel;
 import com.ead.course.enums.CourseStatus;
 import com.ead.course.exceptions.NotFoundException;
 import com.ead.course.models.CourseModel;
+import com.ead.course.models.UserModel;
 import com.ead.course.repositories.CourseRepository;
 import com.ead.course.service.CourseService;
 import jakarta.persistence.criteria.Join;
@@ -130,6 +131,25 @@ public class CourseServiceImpl implements CourseService {
         var updated = courseRepository.save(courseModel);
         logger.debug("Course updated: {}", updated);
         return updated;
+    }
+
+    @Override
+    public boolean existsByCourseAndUser(CourseModel course, UserModel user) {
+        logger.debug("Checking if user: {} is enrolled in course: {}", user, course);
+        Integer exists = courseRepository.existsByCourseAndUsersUser(course.getCourseId(), user.getUserId());
+        logger.debug("User enrolled in course: {}", exists);
+        return exists != null && exists == 1;
+    }
+
+    @Transactional
+    @Override
+    public void saveSubscriptionUserInCourse(CourseModel course, UserModel user) {
+        logger.debug("Enrolling user: {} in course: {}", user, course);
+        CourseModel managedCourse = courseRepository.findById(course.getCourseId())
+            .orElseThrow(() -> new NotFoundException("Course not found"));
+        managedCourse.getUsers().add(user);
+        courseRepository.save(managedCourse);
+        logger.debug("User enrolled in course successfully");
     }
 
 }

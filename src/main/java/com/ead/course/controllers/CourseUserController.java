@@ -2,6 +2,7 @@ package com.ead.course.controllers;
 
 import com.ead.course.dtos.SubscriptionDto;
 import com.ead.course.dtos.UserPageDto;
+import com.ead.course.enums.UserStatus;
 import com.ead.course.service.CourseService;
 import com.ead.course.service.UserService;
 import jakarta.validation.Valid;
@@ -45,6 +46,14 @@ public class CourseUserController {
             @RequestBody @Valid SubscriptionDto subscriptionDto
     ) {
         var course = courseService.findCourseById(courseId);
+        var user = userService.findById(subscriptionDto.userId());
+        if (courseService.existsByCourseAndUser(course, user)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: User already enrolled in this course.");
+        }
+        if (user.getUserStatus().equals(UserStatus.BLOCKED.toString())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: User is blocked.");
+        }
+        courseService.saveSubscriptionUserInCourse(course, user);
         return ResponseEntity.status(HttpStatus.CREATED).body("");
     }
 

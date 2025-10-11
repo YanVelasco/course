@@ -5,6 +5,7 @@ import com.ead.course.dtos.CoursePageDto;
 import com.ead.course.enums.CourseLevel;
 import com.ead.course.enums.CourseStatus;
 import com.ead.course.models.CourseModel;
+import com.ead.course.models.UserModel;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Pageable;
 
@@ -24,5 +25,9 @@ public interface CourseService {
     CourseModel findCourseById(UUID courseId);
 
     CourseModel updateCourse(CourseModel courseModel, CourseDto courseDto);
+
+    boolean existsByCourseAndUser(CourseModel course, UserModel user);
+
+    void saveSubscriptionUserInCourse(CourseModel course, UserModel user);
 
 }
