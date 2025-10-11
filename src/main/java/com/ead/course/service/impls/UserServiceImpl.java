@@ -1,6 +1,7 @@
 package com.ead.course.service.impls;
 
 import com.ead.course.dtos.UserPageDto;
+import com.ead.course.exceptions.NotFoundException;
 import com.ead.course.models.UserModel;
 import com.ead.course.repositories.UserRepository;
 import com.ead.course.service.UserService;
@@ -62,5 +63,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(UUID userId) {
         repository.findById(userId).ifPresent(repository::delete);
+    }
+
+    @Override
+    public UserModel findById(UUID userInstructor) {
+        return repository.findById(userInstructor).orElseThrow(
+                () -> new NotFoundException(
+                        String.format("User with id %s not found", userInstructor)
+                )
+        );
     }
 }
