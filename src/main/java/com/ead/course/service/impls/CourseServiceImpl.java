@@ -41,6 +41,9 @@ public class CourseServiceImpl implements CourseService {
     @Transactional
     @Override
     public void delete(CourseModel courseModel) {
+        logger.debug("Deleted course-user associations for course: {}", courseModel.getCourseId());
+        courseRepository.deleteCourseUserByCourse(courseModel.getCourseId());
+        logger.debug("Deleting course: {}", courseModel);
         courseRepository.delete(courseModel);
     }
 

@@ -3,6 +3,7 @@ package com.ead.course.service.impls;
 import com.ead.course.dtos.UserPageDto;
 import com.ead.course.exceptions.NotFoundException;
 import com.ead.course.models.UserModel;
+import com.ead.course.repositories.CourseRepository;
 import com.ead.course.repositories.UserRepository;
 import com.ead.course.service.UserService;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +21,11 @@ import static java.util.Objects.requireNonNull;
 public class UserServiceImpl implements UserService {
 
     final UserRepository repository;
+    final CourseRepository courseRepository;
 
-    public UserServiceImpl(UserRepository repository) {
+    public UserServiceImpl(UserRepository repository, CourseRepository courseRepository) {
         this.repository = repository;
+        this.courseRepository = courseRepository;
     }
 
     @Transactional(readOnly = true)
@@ -62,6 +65,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void delete(UUID userId) {
+        courseRepository.deleteCourseUserByUser(userId);
         repository.findById(userId).ifPresent(repository::delete);
     }
 
