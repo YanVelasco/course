@@ -3,7 +3,7 @@ spring:
     name: ead-course-service
   config:
     import: 'configserver:'
-    cloud:
-      config:
-        discovery:
-          service-id: ead-config-server
+  cloud:
+    config:
+      discovery:
+        service-id: ead-config-server
