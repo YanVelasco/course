@@ -1,44 +1,9 @@
-server:
-  port: 8082
-  servlet:
-    context-path: '/ead-course/'
 spring:
   application:
     name: ead-course-service
-  datasource:
-    url: jdbc:mysql://localhost:3306/ead-course-db
-    username: root
-    password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    open-in-view: false
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-  rabbitmq:
-    addresses: amqps://wzbbzfre:FF7tphOEWZQ5cwJAmfOJ_2zXQ_nGulkr@jackal.rmq.cloudamqp.com/wzbbzfre
-ead:
-  api:
-    url:
-      authuser: "http://ead-authuser-service/ead-authuser"
-  broker:
-    exchange:
-      userEventExchange: ead.userEvent
-    queue:
-      userEventQueue:
-        name: ead.userEvent.ms.course
-logging:
-  level:
-    com.ead: TRACE
-    root: INFO
-    org.springframework.web: DEBUG
-    org.hibernate: INFO
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    hostname: localhost
+  config:
+    import: 'configserver:'
+    cloud:
+      config:
+        discovery:
+          service-id: ead-config-server
