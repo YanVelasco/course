@@ -3,11 +3,13 @@ package com.ead.course.service.impls;
 import com.ead.course.controllers.CourseController;
 import com.ead.course.dtos.CourseDto;
 import com.ead.course.dtos.CoursePageDto;
+import com.ead.course.dtos.NotificationCommandDto;
 import com.ead.course.enums.CourseLevel;
 import com.ead.course.enums.CourseStatus;
 import com.ead.course.exceptions.NotFoundException;
 import com.ead.course.models.CourseModel;
 import com.ead.course.models.UserModel;
+import com.ead.course.publishers.NotificationCommandPublisher;
 import com.ead.course.repositories.CourseRepository;
 import com.ead.course.service.CourseService;
 import jakarta.persistence.criteria.Join;
@@ -33,9 +35,12 @@ public class CourseServiceImpl implements CourseService {
 
     private static final Logger logger = LogManager.getLogger(CourseServiceImpl.class);
     final CourseRepository courseRepository;
+    private final NotificationCommandPublisher notificationCommandPublisher;
 
-    public CourseServiceImpl(CourseRepository courseRepository) {
+    public CourseServiceImpl(CourseRepository courseRepository,
+                             NotificationCommandPublisher notificationCommandPublisher) {
         this.courseRepository = courseRepository;
+        this.notificationCommandPublisher = notificationCommandPublisher;
     }
 
     @Transactional
@@ -149,10 +154,25 @@ public class CourseServiceImpl implements CourseService {
     public void saveSubscriptionUserInCourse(CourseModel course, UserModel user) {
         logger.debug("Enrolling user: {} in course: {}", user, course);
         CourseModel managedCourse = courseRepository.findById(course.getCourseId())
-            .orElseThrow(() -> new NotFoundException("Course not found"));
+                .orElseThrow(() -> new NotFoundException("Course not found"));
         managedCourse.getUsers().add(user);
         courseRepository.save(managedCourse);
-        logger.debug("User enrolled in course successfully");
+
+        try {
+            var notification = NotificationCommandDto.builder()
+                    .userId(user.getUserId())
+                    .title("Bem-vindo(a) ao curso " + course.getName() + "!")
+                    .message("Olá " + user.getFullName() + ", sua inscrição foi realizada com sucesso. Bons estudos!")
+                    .build();
+
+            notificationCommandPublisher.publisherNotificationCommand(
+                    notification
+            );
+        } catch (Exception ex) {
+            logger.error("Error publishing notification command for user: {} in course: {}. Error: {}",
+                    user.getUserId(), course.getCourseId(), ex.getMessage());
+        }
+
     }
 
 }
