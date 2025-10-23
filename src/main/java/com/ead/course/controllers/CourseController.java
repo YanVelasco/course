@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ public class CourseController {
         this.courseValidator = courseValidator;
     }
 
+    @PreAuthorize("hasAnyRole('INSTRUCTOR')")
     @PostMapping
     public ResponseEntity<Object> saveCourse(
             @RequestBody  CourseDto courseDto,
@@ -45,6 +47,7 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
+    @PreAuthorize("hasAnyRole('USER')")
     @GetMapping
     public ResponseEntity<Object> getAllCourses(
             Pageable pageable,
@@ -62,6 +65,7 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    @PreAuthorize("hasAnyRole('USER')")
     @GetMapping("/{courseId}")
     public ResponseEntity<Object> getCourseById(
             @PathVariable UUID courseId
@@ -72,6 +76,7 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(course);
     }
 
+    @PreAuthorize("hasAnyRole('INSTRUCTOR')")
     @PutMapping("/{courseId}")
     public ResponseEntity<Object> updateCourse(
             @PathVariable UUID courseId,
@@ -89,6 +94,7 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
+    @PreAuthorize("hasAnyRole('INSTRUCTOR')")
     @DeleteMapping("/{courseId}")
     public ResponseEntity<Void> deleteCourse(
             @PathVariable UUID courseId

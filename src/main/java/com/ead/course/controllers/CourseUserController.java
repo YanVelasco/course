@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -24,6 +25,7 @@ public class CourseUserController {
         this.userService = userService;
     }
 
+    @PreAuthorize("hasAnyRole('INSTRUCTOR')")
     @GetMapping("/courses/{courseId}/users")
     public ResponseEntity<UserPageDto> getAlUsersByCourse(
             Pageable pageable,
@@ -40,6 +42,7 @@ public class CourseUserController {
         ));
     }
 
+    @PreAuthorize("hasAnyRole('USER')")
     @PostMapping("/courses/{courseId}/users/subscription")
     public ResponseEntity<Object> saveSubscriptionUserInCourse(
             @PathVariable(value = "courseId") UUID courseId,
