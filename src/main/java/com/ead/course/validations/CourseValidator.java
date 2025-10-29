@@ -1,12 +1,15 @@
 package com.ead.course.validations;
 
+import com.ead.course.configs.security.UserDetailsImpl;
 import com.ead.course.dtos.CourseDto;
 import com.ead.course.enums.UserType;
 import com.ead.course.service.CourseService;
 import com.ead.course.service.UserService;
+import com.ead.course.utils.SecurityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -32,7 +35,7 @@ public class CourseValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return false;
+        return CourseDto.class.isAssignableFrom(clazz);
     }
 
     @Override
@@ -56,12 +59,24 @@ public class CourseValidator implements Validator {
 
     public void validateUserInstructor(UUID userInstructor, Errors errors) {
         logger.debug("Validating user instructor: {}", userInstructor);
-        var userModel = userService.findById(userInstructor);
-        if (userModel.getUserType().equals(UserType.STUDENT.toString()) || userModel.getUserType().equals(UserType.USER.toString())) {
-            errors.rejectValue("userInstructor", "userInstructorInvalid", "User instructor must be an INSTRUCTOR or " +
-                    "ADMIN.");
-            logger.warn("User instructor with ID {} is not valid. Must be INSTRUCTOR or ADMIN.", userInstructor);
+        UserDetailsImpl authenticatedUser = SecurityUtils.getAuthenticatedUser()
+                .orElseThrow(() -> new RuntimeException("Authenticated user not found in security context."));
+        if (authenticatedUser.getUserId().equals(userInstructor) || SecurityUtils.isAdmin()) {
+            var userModel = userService.findById(userInstructor);
+            if (userModel.getUserType().equals(UserType.STUDENT.toString()) || userModel.getUserType().equals(UserType.USER.toString())) {
+                errors.rejectValue("userInstructor", "userInstructorInvalid", "User instructor must be an INSTRUCTOR " +
+                        "or " +
+                        "ADMIN.");
+                logger.warn("User instructor with ID {} is not valid. Must be INSTRUCTOR or ADMIN.", userInstructor);
+            }
+        } else {
+            errors.rejectValue("userInstructor", "userInstructorUnauthorized", "You are not authorized to assign this" +
+                    " user as instructor.");
+            logger.warn("Authenticated user with ID {} is not authorized to assign user with ID {} as instructor.",
+                    authenticatedUser.getUserId(), userInstructor);
+            throw new AccessDeniedException("FORBIDDEN: You are not authorized to assign this user as instructor.");
         }
+
     }
 
 }
